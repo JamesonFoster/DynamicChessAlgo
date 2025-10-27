@@ -96,32 +96,29 @@ class Graph:
 
 # ==========================================Example Usage===========================================
 start = t.time() 
-A = Vertex()
-B = Vertex()
-C = Vertex()
-D = Vertex()
-E = Vertex()
-F = Vertex()
+i1 = Vertex()
+i2 = Vertex()
+i3 = Vertex()
+i4 = Vertex()
+it = Vertex()
 
 # Create a map for object to name for readable output
-vertex_to_name = {A: 'A', B: 'B', C: 'C', D: 'D', E: 'E', F: 'F'}
+vertex_to_name = {i1: 'i1', i2: 'i2', i3: 'i3', i4: 'i4', it: 'it'}
 def get_vertex_name(vertex_obj):
     return vertex_to_name.get(vertex_obj, 'UnknownVertex')
 
 # Create edges between vertices with weights
-A.add_edge(C, 2)
-B.add_edge(A, 4)
-B.add_edge(D, 1)
-C.add_edge(E, 3)
-D.add_edge(F, 2)
-E.add_edge(B, 6)
-F.add_edge(E, 4)
+i4.add_edge(i1, 0.0833)
+i1.add_edge(i2, 0.1)
+i1.add_edge(i4, 1)
+i1.add_edge(i3, 0.1333)
+i3.add_edge(it, 0.31)
 
 g = Graph(Vertex.vertices, Edge.edges)
 
 # Run Bellman-Ford algorithm from source vertex A
-print("\nRunning Bellman-Ford Algorithm with A as the source")
-negative_cycle, distances, predecessors = g.bellman_ford(A)
+print("\nRunning Bellman-Ford Algorithm with i4 as the source")
+negative_cycle, distances, predecessors = g.bellman_ford(i4)
 
 # Print results
 if not negative_cycle:
@@ -132,10 +129,10 @@ if not negative_cycle:
         distance = distances[vertex]
         
         if distance != float('inf'):
-            path = g.get_road(predecessors, A, vertex, vertex_to_name)
+            path = g.get_road(predecessors, i4, vertex, vertex_to_name)
             print(f"Shortest path of edge: {name}. Distance: {distance:.1f}. Path: {path}")
         else:
-            print(f"There is no path from A to {name}. Distance: Infinity")
+            print(f"There is no path from i4 to {name}. Distance: Infinity")
 else:
     print("Negative weight cycle found. Shortest paths cannot be determined.")
 end = t.time()
