@@ -3,11 +3,14 @@ import time
 import random as ran
 
 class IntSect: #different name for vertex
+    intersections = []  
     def __init__(self, name, x=0, y=0): #set up vertex
         self.name = name
         self.x = x # position on x
         self.y = y #position on y
         self.connections = []  # list of Roads that this intersection connects to
+        self.queues = {} # dictionary that holds queues for each road
+        IntSect.intersections.append(self) # for every intersection created add it to the total count
 
     def makeConnect(self, road):
         self.connections.append(road) #adds road to its list of connections
@@ -15,22 +18,74 @@ class IntSect: #different name for vertex
             road.conn1 = self  #because the road can only have 2 connections
         else:                  #connection 1 for roads will always be the primary 
             road.conn2 = self  #connection and 2 will default always if 1 is filled
+        self.queues[road] = Queue()
+
+    def travel_road(self, start, heading):  
+        if heading in self.connections and start in self.connections:   # Checks to see if selected road is connected here
+            selected_car = self.queues[start].dequeue()                 # Get car traveling and dequeue it from this intersection
+            if not heading.Oneway or self == heading.A:                 # Checks if the road is actually travelable
+                if selected_car != None:                                # checks to make sure there are cars present
+                    print(f'{selected_car.name} leaving {self} heading down {heading.name} (is one way: {heading.Oneway}) (Traverse Time: {get_text_time(heading.time)})')
+                    heading.travel(self, selected_car)                  # sends the car down the road to the next intersection
+            else:
+                print(f'Debug: {selected_car.name} tried to go down a oneway (Road: {heading.name})!')  # ADD ERROR HANDLING HERE!!      
+    
+    # Method that spawns/moves cars at intersections
+    def add_car(self, road, car):   
+        if road in self.queues:             # Checks if the road is actually connected to this intersection
+            self.queues[road].enqueue(car)  # Adds cars to the queue of the selected road
+            car.location = self             # Sets car's current location to this intersection
+            delay = self.type.getwait(car)
+            car.add_time(delay)            
+            print(f' {car.name} arrived at intersection {self.name} DELAY: {delay * 3600} seconds')
+        else:
+            print("Debug: Road not connected to target intersection!")
+            
+    @classmethod
+    def get_nodes(cls):
+        return cls.intersections
+        
+    def __repr__(self):
+        return f"Intersection({self.name})"
 
 class Road: #different name for edge
-    def __init__(self, length, speed, name):
+    def __init__(self, length, speed, name, Oneway=False):
         self.len = length
         self.spe = speed
         self.wei = length / speed  # calculates weight of travel automatically
         self.conn1 = None # primary connection
         self.conn2 = None # secondary connection
         self.name = name
+        self.Oneway = Oneway  
 
     def getOther(self, current):
         return self.conn2 if self.conn1 == current else self.conn1
+    
+    def travel_road(self, start, heading):  
+        if heading in self.connections and start in self.connections:   # Checks to see if selected road is connected here
+            selected_car = self.queues[start].dequeue()                 # Get car traveling and dequeue it from this intersection
+            if not heading.Oneway or self == heading.A:                 # Checks if the road is actually travelable
+                if selected_car != None:                                # checks to make sure there are cars present
+                    print(f'{selected_car.name} leaving {self} heading down {heading.name} (is one way: {heading.Oneway}) (Traverse Time: {get_text_time(heading.time)})')
+                    heading.travel(self, selected_car)                  # sends the car down the road to the next intersection
+            else:
+                print(f'Debug: {selected_car.name} tried to go down a oneway (Road: {heading.name})!')  # ADD ERROR HANDLING HERE!!
 
 class Car: #main interactive object
     def __init__(self, startpos):
         self.pos = startpos
+        self.location = startpos
+        self.time = 0
+        self.path = None
+
+    def traverse(self):
+        print(f'-------------- Trip Summary --------------')
+        for I in self.path:                                          # for each road in the set path
+            self.location.travel_road(self.location, I)         # Move car from its current intersection to the next via provided road
+            self.location = I                                   # Set the new road as it's current position
+        print(self.path)
+        print("DONE!")
+        print(f'Time to complete: {get_text_time(self.time)}')
 
     def est(self, currpos, target): # estimates distance to target from current pos
         dx = currpos.x - target.x
@@ -47,7 +102,7 @@ class Car: #main interactive object
         f_score = {self.pos: self.est(self.pos, target)}
 
         while toExp:
-            #finds the node in toExp with the lowest f_score
+            #finds the node in toExp with the best f_score
             current = min(toExp, key=lambda node: f_score.get(node, float('inf')))
 
             if current == target: #if the current position is == to target
@@ -55,14 +110,15 @@ class Car: #main interactive object
                 path = []
                 while current in came_from:
                     prev, road = came_from[current]
-                    path.append((road.name, current.name))
-                    weiRec += road.wei
+                    path.append(current)
+                    self.time += road.wei
                     current = prev
                 path.reverse() # reverses the path so its in actual order
-                return f'{path}. Time to get there: {weiRec * 60} minutes.'
+                self.path = path
+                return f'Time to get there: {self.time * 60} minutes.'
 
             toExp.remove(current)
-            weiRec = 0
+            self.time = 0
 
             for road in current.connections:
                 neighbor = road.getOther(current)
@@ -75,8 +131,25 @@ class Car: #main interactive object
 
                     if neighbor not in toExp:
                         toExp.append(neighbor)
-
         return None  # there is not a path able to get to target
+
+def get_text_time(time):
+    hours = time
+    minutes = (time * 60) % 60
+    seconds = (time * 3600) % 60
+    return ("%d:%02d:%02d" % (hours, minutes, seconds)) 
+    # Queue using FIFO
+class Queue:
+    def __init__(self):
+        self.items = []
+    def enqueue(self, item):
+        self.items.append(item)
+    def dequeue(self):
+        return self.items.pop(0) if self.items else None
+    def __len__(self):
+        return len(self.items)
+    def __repr__(self):
+        return f"Queue({self.items})"
         
 
 # -------------------------
@@ -115,23 +188,15 @@ i3.makeConnect(r4) # i3 to Life
 
 # Car starts at i4
 lister = []
-j = 0
-for i in range(10):
-    j = ran.randrange(0,4)
-    if j <= 1:
-        car = Car(i1)
-    elif j <= 2:
-        car = Car(i2)
-    elif j <= 3:
-        car = Car(i3)
-    else:
-        car = Car(i4)
+for i in range(1000):
+    car = Car(i4)
     lister.append(car)
 
 setuptime = time.time()
 print(f"Time: {setuptime - starttime:.6f} seconds\n")
 # Find path to Target
 for i in lister:
-    print(i.goTarget(it))
+    i.goTarget(it)
+    i.traverse()
 runtime = time.time()
 print(f"Time: {runtime - setuptime:.6f} seconds\n")
