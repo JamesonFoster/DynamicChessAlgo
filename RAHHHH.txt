@@ -1,0 +1,224 @@
+import time
+import random
+import math
+class Car:
+    def __init__(self, start, finish, name):
+        self.name = name                                        # name of car 
+        self.location = start                                   # Intersection the car starts on
+        self.position = start.connections[0]                    # road the car is starting on
+        self.time = 0                                           # Keeps track of total travel time 
+        self.location.add_car(self.position, self)              # initializes the car on the intersection and start location
+        self.path = self.goTarget(finish)
+        print(self.path)
+        self.traverse(self.path)                                # Move the car down the traversal path
+        
+    # Method to add time to current travel time
+    def add_time(self, time):
+        self.time += time
+        
+    # Traverse the provided path
+    def traverse(self, path):
+        print(f'-------------- {self.name} Trip Summary --------------')
+        for I in path:                                          # for each road in the set path
+            self.location.travel_road(self.position, I)         # Move car from its current intersection to the next via provided road
+            self.position = I                                   # Set the new road as it's current position
+        print("DONE!")
+        print(get_text_time(self.time))
+    
+    def est(self, currpos, target): # estimates distance to target from current pos
+        dx = currpos.x - target.x
+        dy = currpos.y - target.y
+        distance = math.sqrt((dx*dx) + (dy*dy))
+        max_speed = 100  # Assume 100 miles is max
+        return distance / max_speed
+
+    def goTarget(self, target):
+        toExp = [self.location]       # Nodes (intersections) to explore
+        came_from = {}                # For reconstructing path: neighbor -> (previous intersection, road)
+        g_score = {self.location: 0} 
+        f_score = {self.location: self.est(self.location, target)}
+    
+        while toExp:
+            # Pick intersection with lowest f_score
+            current = min(toExp, key=lambda node: f_score.get(node, float('inf')))
+    
+            # If we reached the target intersection, reconstruct the path
+            if current == target:
+                path = []             # List of roads (not intersections)
+                total_time = 0
+                while current in came_from:
+                    prev, road = came_from[current]
+                    path.append(road)         # Append road, not intersection
+                    total_time += road.wei
+                    current = prev
+                path.reverse()                # Reverse so it’s from start → finish
+                return path                   # return list of roads
+    
+            toExp.remove(current)
+    
+            # Explore all connected roads
+            for road in current.connections:
+                if not road.Oneway or self == road.A:   
+                    neighbor = road.getOther(current)
+                    tent_g = g_score[current] + road.wei
+        
+                    # If this is a better path, record it
+                    if neighbor not in g_score or tent_g < g_score[neighbor]:
+                        came_from[neighbor] = (current, road)
+                        g_score[neighbor] = tent_g
+                        f_score[neighbor] = tent_g + self.est(neighbor, target)
+        
+                        if neighbor not in toExp:
+                            toExp.append(neighbor)
+        
+        # no path found
+        return None
+
+# Intersection class
+class Intersection:
+    intersections = []                                          # Array to keep track of count of all intersections
+
+    def __init__(self, name, type, X, Y):
+        self.x = X
+        self.y = Y
+        self.type = type
+        self.name = name                                        # name of intersection
+        self.connections = []                                   # array of roads connected
+        self.queues = {}                                        # dictionary that holds queues for each road
+        Intersection.intersections.append(self)                 # for every intersection created add it to the total count
+
+    # Attach a road to the node
+    def add_road(self, road):  
+        self.connections.append(road)                           # Append the road to the array of connected roads
+        self.queues[road] = Queue()                             # Create a queue for cars coming from this road
+        
+    # Method that sends cars from start roads queue down the road to the next intersection
+    def travel_road(self, start, heading):  
+        if heading in self.connections and start in self.connections:   # Checks to see if selected road is connected here
+            selected_car = self.queues[start].dequeue()                 # Get car traveling and dequeue it from this intersection
+            if not heading.Oneway or self == heading.A:                 # Checks if the road is actually travelable
+                if selected_car != None:                                # checks to make sure there are cars present
+                    print(f'{selected_car.name} leaving {self} heading down {heading.name} (is one way: {heading.Oneway}) (Traverse Time: {get_text_time(heading.time)})')
+                    heading.travel(self, selected_car)                  # sends the car down the road to the next intersection
+            else:
+                print(f'Debug: {selected_car.name} tried to go down a oneway (Road: {heading.name})!')  # ADD ERROR HANDLING HERE!!
+                
+    # Method that spawns/moves cars at intersections
+    def add_car(self, road, car):   
+        if road in self.queues:             # Checks if the road is actually connected to this intersection
+            self.queues[road].enqueue(car)  # Adds cars to the queue of the selected road
+            car.location = self             # Sets car's current location to this intersection
+            delay = self.type.getwait(car)
+            car.add_time(delay)            
+            print(f' {car.name} arrived at intersection {self.name} DELAY: {delay * 3600} seconds')
+        else:
+            print("Debug: Road not connected to target intersection!")
+            
+    @classmethod
+    def get_nodes(cls):
+        return cls.intersections
+        
+    def __repr__(self):
+        return f"Intersection({self.name})"
+        
+
+# Road class
+class Road:
+    def __init__(self, speed_limit, length, Oneway=False, name=""):
+        self.name = name                    # name of road
+        self.wei = length / speed_limit
+        self.time = length / speed_limit    # time to travel in HH.HHH
+        self.Oneway = Oneway                # is the road one way?
+        self.A = None                       # Both of these are used to store the intersections at each end of the road
+        self.B = None                       # Initially set as None until the connect method is run
+        
+
+    def getOther(self, current):
+                return self.B if self.A == current else self.A
+    # Moves cars from one intersection to the next by adding it to the targeted intersection's queue                
+    def travel(self, start, car):
+        if start == self.A:             # Checks if intersection A called this function
+            self.B.add_car(self, car)   # Adds car to intersection B
+        if start == self.B:             # Checks if intersection B called this function
+            self.A.add_car(self, car)   # Adds car to intersection A
+        car.add_time(self.time)         # Add traverse time to selected car's total travel time
+
+    # Method that connects ends of roads to the intersections
+    def connect(self, IntersectionA, IntersectionB):
+        self.A = IntersectionA
+        self.B = IntersectionB
+        IntersectionA.add_road(self)
+        IntersectionB.add_road(self)
+        
+    def __repr__(self):
+        return f"Road({self.name}, oneway={self.Oneway})"
+
+
+# Traffic light class
+class traffic_light:
+    def __init__(self, time, randomization=True):
+        self.waittime = time
+        if randomization:
+            self.random_initial_time = random.randrange(0, self.waittime)
+        else:
+            self.random_initial_time = 0
+        
+    def getwait(self, car):
+        arrival = car.time * 3600
+        state_changes = (arrival + self.random_initial_time) / self.waittime
+        if int(state_changes) % 2 == 0:
+            remaining = state_changes % 1 * self.waittime
+            return remaining / 3600
+        else:
+            return 0
+            
+
+# Queue using FIFO
+class Queue:
+    def __init__(self):
+        self.items = []
+    def enqueue(self, item):
+        self.items.append(item)
+    def dequeue(self):
+        return self.items.pop(0) if self.items else None
+    def __len__(self):
+        return len(self.items)
+    def __repr__(self):
+        return f"Queue({self.items})"
+
+
+# Converts HH.HHH float to HH:MM:SS string
+def get_text_time(time):
+    hours = time
+    minutes = (time * 60) % 60
+    seconds = (time * 3600) % 60
+    return ("%d:%02d:%02d" % (hours, minutes, seconds)) 
+
+
+# ---------------- Example Simulation ----------------
+starttime = time.time()
+
+A = Intersection("A", traffic_light(60), 0, 0)
+B = Intersection("B", traffic_light(60), 5, 0)
+C = Intersection("C", traffic_light(60), 10, 0)
+D = Intersection("D", traffic_light(60), -5, 0)
+E = Intersection("E", traffic_light(60), 14, 0)
+
+# Create roads 
+R1 = Road(speed_limit=60, length=5, Oneway=False, name="ChillBurger Street")
+R2 = Road(speed_limit=60, length=6, Oneway=False, name="uuJi")
+R3 = Road(speed_limit=1, length=1, Oneway=False, name="1 Mine Stopped")
+R4 = Road(speed_limit=75, length=10, Oneway=True, name="Mine Stopped")
+R5 = Road(speed_limit=40, length=4, Oneway=False, name="45454Road")
+
+# Connect Roads and Intersections
+R1.connect(A,B)
+R2.connect(C,B)
+R3.connect(A,D)
+R4.connect(A,C)
+R5.connect(C,E)
+setuptime = time.time()
+
+# Add a car at intersection A
+car1 = Car(D, E, "steve")
+print(f"Time: {setuptime - starttime:.6f} seconds\n")
