@@ -1,0 +1,34 @@
+Length
+Speed
+Name
+Oneway T/F
+Length
+Speed
+Name
+Oneway T/F
+Length
+Speed
+Name
+Oneway T/F
+Length
+Speed
+Name
+Oneway T/F
+Length
+Speed
+Name
+Oneway T/F
+----Intersect----
+name
+con1
+con2
+--stop--
+name
+con1
+con2
+con3
+con4
+--stop--
+name
+con1
+con2
