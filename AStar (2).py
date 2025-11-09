@@ -82,17 +82,20 @@ class RoundAbt(IntSect): #remove AStar. once combined
     def spawnGhosts(self):
         ghosts = 0
 
-        ghosts *= self.use
+        ghosts = self.use
 
         return ghosts
+    
     def getTime(self, car):
         self.use += 1
         self.ghosts = self.spawnGhosts()
         
         Csource = car.path[car.path.index(self) - 1] # index of the previous intersection in path
         
-        #cars cannot have roundabouts as destination
-        Cdest = car.path[car.path.index(self) + 1] # index of the next intersection in path
+        temp = car.path[car.path.index(self)] 
+        if temp != car.path[-1]:
+            #cars cannot have roundabouts as destination
+            Cdest = car.path[car.path.index(self) + 1] # index of the next intersection in path
 
         for road in self.connections:
                 if road.getOther(self) == Csource: #get road that car came from
