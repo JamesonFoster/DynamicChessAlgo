@@ -156,47 +156,86 @@ class Queue:
 # Map setup with coordinates
 # -------------------------
 starttime = time.time()
-# Roads
-r1 = Road(5, 60, "ChillBurger Street")      # 5/60 = 0.0833 hr
-r2 = Road(6, 60, "uuJi")                    # 6/60 = 0.1 hr
-r3 = Road(1, 1, "1 Mine Stopped")           # 1/1 = 1 hr
-r4 = Road(10, 75, "Life is a Highway")      # 10/75 = 0.1333 hr
-r5 = Road(4, 40, "45454Road")               # 4/40 = 0.1 hr
+readmode = 0  # 0 = roads, 1 = intersections, 2 = cars
+fc = 0 
+rtemp = []
+itemp = []
 
-# Intersections with (x, y) positions
-i1 = IntSect("i1", 0, 0)
-i2 = IntSect("i2", 5, 0)
-i3 = IntSect("i3", 10, 0)
-i4 = IntSect("i4", -5, 0)
-it = IntSect("Target", 14, 0)  # Destination
+with open("test.txt", "r") as file:
+    for line in file:
+        li = line.strip()
+        if li == "----Intersect----":
+            readmode = 1
+            fc = 0
+            continue
+        elif li == "----Cars----":
+            readmode = 2
+            fc = 0
+            continue
+        # Roads
+        if readmode == 0:
+            if fc == 0:
+                dp1 = int(li)
+            elif fc == 1:
+                dp2 = int(li)
+            elif fc == 2:
+                dp3 = li
+            elif fc == 3:
+                dp4 = li.lower() == "true"
+                newroad = Road(dp1, dp2, dp3, dp4)
+                print(f"{newroad.name} created")
+                rtemp.append(newroad)
+                fc = -1
+            fc += 1
+        # Intersections
+        elif readmode == 1:
+            if li == "--stop--":
+                fc = 0
+                continue
+            if fc == 0:
+                dp1 = li
+            elif fc == 1:
+                dp2 = int(li)
+            elif fc == 2:
+                dp3 = int(li)
+                newint = IntSect(dp1, dp2, dp3)
+                itemp.append(newint)
+            elif fc >= 3:
+                conn = None
+                for i in rtemp:
+                    if i.name == li:
+                        conn = i
+                        break
+                if conn:
+                    newint.makeConnect(conn)
+                    print(f"{newint.name} connected to {conn.name}")
+                else:
+                    print("Error No connection for", li)
+            fc += 1
+        # Cars
+        elif readmode == 2:
+            if fc == 0:
+                conn1 = None
+                for i in itemp:
+                    if i.name == li:
+                        conn1 = i
+                        break
+                if conn1:
+                    newCar = Car(conn1)
+                else:
+                    print("ERROR NO CONNECTION")
+            elif fc == 1:
+                conn2 = None
+                for i in itemp:
+                    if i.name == li:
+                        conn2 = i
+                        break
+                if conn2:
+                    newCar.goTarget(conn2)
+                    newCar.traverse()
+                else:
+                    print("ERROR NO CONNECTION")
+            fc = (fc + 1) % 2
 
-# Connect roads to intersections
-i1.makeConnect(r1) # i1 to chillburger
-i2.makeConnect(r1) # i2 to chillburger
-
-i3.makeConnect(r2) # i3 to uuJi
-i2.makeConnect(r2) # i2 to uuJi
-
-i3.makeConnect(r5) # i3 to 45454
-it.makeConnect(r5) # Target to 45454
-
-i1.makeConnect(r3) # i1 to 1 Mine
-i4.makeConnect(r3) # i4 to 1 Mine
-
-i1.makeConnect(r4) # i1 to Life
-i3.makeConnect(r4) # i3 to Life
-
-# Car starts at i4
-lister = []
-for i in range(1000):
-    car = Car(i4)
-    lister.append(car)
-
-setuptime = time.time()
-print(f"Time: {setuptime - starttime:.6f} seconds\n")
-# Find path to Target
-for i in lister:
-    i.goTarget(it)
-    i.traverse()
 runtime = time.time()
-print(f"Time: {runtime - setuptime:.6f} seconds\n")
+print(f"Time: {runtime - starttime:.6f} seconds\n")
