@@ -1,0 +1,58 @@
+60
+60
+Name
+False
+49
+43
+86th street
+False
+92
+38
+PopSlide
+False
+4
+60
+Harbake
+False
+3
+20
+Frisk Street
+False
+----Intersect----
+i1
+23
+0
+Frisk Street
+PopSlide
+--stop--
+i2
+2
+12
+86th street
+PopSlide
+--stop--
+i3
+88
+33
+Name
+Harbake
+--stop--
+i4
+233
+12
+Frisk Street
+86th street
+Name
+PopSlide
+--stop--
+i5
+91
+13
+--stop--
+it
+73
+23
+Harbake
+----Cars----
+i1
+it
