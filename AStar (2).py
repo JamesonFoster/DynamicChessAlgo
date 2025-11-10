@@ -68,49 +68,52 @@ class RoundAbt(IntSect): #remove AStar. once combined
         self.connections.sort(key = self.Order)
 
     def Order(self, connection): # return the degree of a node WRT another node
-        
-        x1 = self.x
-        y1 = self.y
-        x2 = connection.getOther(self).x
-        y2 = connection.getOther(self).y
+        if connection != None:
+            x1 = self.x
+            y1 = self.y
+            x2 = connection.getOther(self).x
+            y2 = connection.getOther(self).y
 
-        r = ((x2 - x1)**2 + (y2 - y1)**2)**(1/2)
-        theta = math.degrees(math.acos((x2-x1)/r)) 
-        print(f"theta: {theta}")
-        return theta
+            r = ((x2 - x1)**2 + (y2 - y1)**2)**(1/2)
+            theta = math.degrees(math.acos((x2-x1)/r)) 
+            print(f"theta: {theta}")
+            return theta
+        else:
+            return -1
     
     def spawnGhosts(self):
         ghosts = 0
 
-        ghosts = self.use
+        ghosts *= self.use
 
         return ghosts
-    
     def getTime(self, car):
         self.use += 1
         self.ghosts = self.spawnGhosts()
         
         Csource = car.path[car.path.index(self) - 1] # index of the previous intersection in path
-        
         temp = car.path[car.path.index(self)] 
+
         if temp != car.path[-1]:
             #cars cannot have roundabouts as destination
-            Cdest = car.path[car.path.index(self) + 1] # index of the next intersection in path
+            Cdest = car.path[car.path.index(self) + 1] 
+        else:
+            Cdest = car.path[car.path.index(self)] 
 
         for road in self.connections:
                 if road.getOther(self) == Csource: #get road that car came from
                     CsourceRoad = road
                 if road.getOther(self) == Cdest: #get road car is going to
                     CdestRoad = road
-
+                else:
+                    CdestRoad = None
+                
         for _ in range(self.ghosts):
             #Gsource = random.randint(1, len(self.connections)) # cars may enter roundabout to turn around so source can equal destination
             Gdest = ran.randint(1,len(self.connections)) # each ghost car gets a random destination road
             
-            
             if self.connections[Gdest] == CdestRoad: # if the ghost car's destination is same as car's at this node
                 self.time += ((5/60)/60) # add 5 seconds for yeild
-            
         
         ord = self.Order(CdestRoad)
         print(ord)
@@ -118,6 +121,8 @@ class RoundAbt(IntSect): #remove AStar. once combined
         dist = (ord/360) * 2*math.pi * 0.0094697 #50 ft radius, the arc length the car travels in the roundabout
         if ord == 0:
             dist = math.pi * 0.0094697 # going straight so half of the roundabout is driven
+        elif ord < 0:
+            dist = 0
             
         delay = dist/self.speed #delay in hours
         
