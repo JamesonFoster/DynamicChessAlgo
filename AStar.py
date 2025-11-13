@@ -9,8 +9,13 @@ class IntSect: #different name for vertex
         self.x = x # position on x
         self.y = y #position on y
         self.connections = []  # list of Roads that this intersection connects to
+        self.time = 0
+        self.ghosts = 2
         self.queues = {} # dictionary that holds queues for each road
         IntSect.intersections.append(self) # for every intersection created add it to the total count
+
+    def getTime(self, car):
+        return self.time
 
     def makeConnect(self, road):
         self.connections.append(road) #adds road to its list of connections
@@ -47,6 +52,138 @@ class IntSect: #different name for vertex
         
     def __repr__(self):
         return f"Intersection({self.name})"
+
+
+#************************************************Roundabout**********************************************
+class RoundAbt(IntSect): #remove AStar. once combined
+    def __init__(self, name, x, y):
+        
+        super().__init__(name, x, y)
+
+        self.ghosts = 2
+        self.speed = 15 #mph
+        self.use = 0
+
+    def getConnOrder(self):
+        self.connections.sort(key = self.Order)
+
+    def Order(self, connection): # return the degree of a node WRT another node
+        if connection != None:
+            x1 = self.x
+            y1 = self.y
+            x2 = connection.getOther(self).x
+            y2 = connection.getOther(self).y
+
+            r = ((x2 - x1)**2 + (y2 - y1)**2)**(1/2)
+            theta = math.degrees(math.acos((x2-x1)/r)) 
+            print(f"theta: {theta}")
+            return theta
+        else:
+            return -1
+    
+    def spawnGhosts(self):
+        ghosts = 0
+
+        ghosts *= self.use
+
+        return ghosts
+    def getTime(self, car):
+        self.use += 1
+        self.ghosts = self.spawnGhosts()
+        
+        Csource = car.path[car.path.index(self) - 1] # index of the previous intersection in path
+        temp = car.path[car.path.index(self)] 
+
+        if temp != car.path[-1]:
+            #cars cannot have roundabouts as destination
+            Cdest = car.path[car.path.index(self) + 1] 
+        else:
+            Cdest = car.path[car.path.index(self)] 
+
+        for road in self.connections:
+                if road.getOther(self) == Csource: #get road that car came from
+                    CsourceRoad = road
+                if road.getOther(self) == Cdest: #get road car is going to
+                    CdestRoad = road
+                else:
+                    CdestRoad = None
+                
+        for _ in range(self.ghosts):
+            #Gsource = random.randint(1, len(self.connections)) # cars may enter roundabout to turn around so source can equal destination
+            Gdest = ran.randint(1,len(self.connections)) # each ghost car gets a random destination road
+            
+            if self.connections[Gdest] == CdestRoad: # if the ghost car's destination is same as car's at this node
+                self.time += ((5/60)/60) # add 5 seconds for yeild
+        
+        ord = self.Order(CdestRoad)
+        print(ord)
+        
+        dist = (ord/360) * 2*math.pi * 0.0094697 #50 ft radius, the arc length the car travels in the roundabout
+        if ord == 0:
+            dist = math.pi * 0.0094697 # going straight so half of the roundabout is driven
+        elif ord < 0:
+            dist = 0
+            
+        delay = dist/self.speed #delay in hours
+        
+        self.time += delay
+
+        return self.time
+#*****************************************************************************************************
+#==============================================4 Way Stop=============================================
+class StopFour(IntSect):
+    # Position order to check for right car
+    POSITION_ORDER = ['North', 'East', 'South', 'West']
+
+    def __init__(self, name, x, y):
+        self.name = name
+        self.time = 0
+        self.x = x # position on x
+        self.y = y #position on y
+        self.connections = []
+        self.queues = {}
+        self.is_stop_sign_controlled = True
+
+    def traffic_control(self):
+        #Overrides the parent method to specify the type of control.
+        return
+
+    def determine_order_of_entry(self, simultaneous_cars):
+        if not simultaneous_cars:
+            return "No cars stopped.", []
+        if len(simultaneous_cars) == 1:
+            return f"Only one car ({simultaneous_cars[0]}). It goes first.", []
+
+        print(f"\n Order for simultaneous arrival: {simultaneous_cars}")
+        
+        #Map car positions to their index in the defined order (0-3)
+        car_indices = {pos: self.POSITION_ORDER.index(pos) for pos in simultaneous_cars}
+        
+        # Find the car that has no other simultaneous car to its immediate right
+        #This car is the one that goes first.
+        goes_first = None
+        
+        for current_car, current_index in car_indices.items():
+            # Calculate the index of the car to the right
+            right_index = (current_index + 1) % len(self.POSITION_ORDER)
+            car_to_right = self.POSITION_ORDER[right_index]
+            
+            # If the car to the right is NOT among the simultaneous cars,
+            # then the current_car has the right-of-way.
+            if car_to_right not in simultaneous_cars:
+                goes_first = current_car
+                break # Dis da boi
+                
+        # Handle the edge case where all four cars stop at the same time
+        if goes_first is None and len(simultaneous_cars) == 4:
+            return "All cars stopped at the same time, one must go first", []
+
+        if goes_first:
+            remaining_cars = [car for car in simultaneous_cars if car != goes_first]
+            return f"{goes_first} goes first (No car to its right).", remaining_cars
+        else:
+            # Should only happen if there's a problem with the logic, but included as a guard. Hopefully :)
+            return "Could not determine the order based on the 'car to the right' rule.", simultaneous_cars
 
 class Road: #different name for edge
     def __init__(self, length, speed, name, Oneway=False):
@@ -115,6 +252,9 @@ class Car: #main interactive object
                     current = prev
                 path.reverse() # reverses the path so its in actual order
                 self.path = path
+                for I in self.path:
+                    
+                    self.time += I.getTime(car = self)
                 return f'Time to get there: {self.time * 60} minutes.'
 
             toExp.remove(current)
@@ -198,9 +338,16 @@ with open("test.txt", "r") as file:
                 dp2 = int(li)
             elif fc == 2:
                 dp3 = int(li)
-                newint = IntSect(dp1, dp2, dp3)
+            elif fc == 3:
+                dp4 = int(li)
+                if dp4 == 0:
+                    newint = IntSect(dp1, dp2, dp3)
+                elif dp4 == 1:
+                    newint = RoundAbt(dp1, dp2, dp3)
+                else:
+                    newint = StopFour(dp1,dp2,dp3)
                 itemp.append(newint)
-            elif fc >= 3:
+            elif fc >= 4:
                 conn = None
                 for i in rtemp:
                     if i.name == li:
