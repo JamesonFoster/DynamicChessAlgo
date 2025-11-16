@@ -1,0 +1,90 @@
+#Intersections
+{'name': 'Walgreens', 'X': 908, 'Y': 0, 'type': StopLight}
+{'name': 'McDonalds', 'X': 693, 'Y': 61, 'type': StopLight}
+{'name': 'EmainNdudney', 'X': 464, 'Y': 70, 'type': StopLight}
+{'name': 'FirstBaptistChurch', 'X': 325, 'Y': 73, 'type': StopLight}
+{'name': 'Cameo', 'X': 297, 'Y': 74, 'type': StopLight}
+{'name': 'TheSquare', 'X': 257, 'Y': 71, 'type': RoundAbout}
+{'name': 'Walmart', 'X': 950, 'Y': 339, 'type': StopLight}
+{'name': 'ChickenExpress', 'X': 954, 'Y': 425 , 'type': StopLight}
+{'name': 'EastSideElementry', 'X': 699, 'Y': 225, 'type': StopLight}
+{'name': 'MagnoliaMiddleSchool', 'X': 468, 'Y': 136, 'type': StopLight}
+{'name': 'OutOfTheBox', 'X': 470, 'Y': 217, 'type': StopSign}
+{'name': 'ChamblissAndDavis', 'X': 773, 'Y': 303, 'type': NONE}
+{'name': 'InfinityFitness', 'X': 508, 'Y': 318, 'type': StopSign}
+{'name': 'MagnoliaHigh', 'X': 714, 'Y': 527, 'type': StopSign}
+{'name': 'PeoplesBank', 'X': 959, 'Y': 522, 'type': NONE}
+{'name': 'CadenceBank', 'X': 299, 'Y': 137, 'type': StopLight}
+{'name': 'MedicalCenter', 'X': 352, 'Y': 326, 'type': StopLight}
+{'name': 'LutheranChurch', 'X': 418, 'Y': 541, 'type': NONE}
+{'name': 'SpecializedServices', 'X': 303, 'Y': 233, 'type': NONE}
+{'name': 'FirstUnitedMethodist', 'X': 187, 'Y': 78, 'type': StopLight}
+{'name': 'RebootElectronics', 'X': 191, 'Y': 140, 'type': StopLight}
+{'name': 'DentalCenter', 'X': 368, 'Y': 430, 'type': NONE}
+{'name': 'Firestone', 'X': 161, 'Y': 438, 'type': NONE}
+{'name': 'PrincePharmacy, 'X': 281, 'Y': 436, 'type': StopSign}
+{'name': 'Overstreet, 'X': 349, 'Y': 732, 'type': NONE}
+{'name': 'Mulekick, 'X': 400, 'Y': 724, 'type': NONE}
+{'name': 'AsburyMethodist, 'X': 712, 'Y': 748, 'type': StopSign}
+{'name': 'FlyingBurger, 'X': 973, 'Y': 739, 'type': NONE}
+{'name': 'Thatintersectionthatihate, 'X': 934, 'Y': 743, 'type': NONE}
+{'name': 'ShellStation, 'X': 1000, 'Y': 956, 'type': NONE}
+{'name': 'StoryArena, 'X': 722, 'Y': 1000, 'type': NONE}
+{'name': 'UniversityEntrance, 'X': 383, 'Y': 988, 'type': NONE}
+{'name': 'ReynoldsCenter, 'X': 347, 'Y': 828, 'type': StopLight}
+{'name': 'DixieMart, 'X': 57, 'Y': 769, 'type': NONE}
+{'name': 'TravelCenter, 'X': 0, 'Y': 963, 'type': StopLight}
+
+#Streets
+{'name': 'Highway82', 'speed' : 45, 'length' : 0.82 , 'oneway' : False , 'A' : TravelCenter , 'B': UniversityEntrance}
+{'name': 'Highway82', 'speed' : 45, 'length' : 0.75 , 'oneway' : False , 'A' : UniversityEntrance , 'B': StoryArena}
+{'name': 'Highway82', 'speed' : 45, 'length' : 0.62 , 'oneway' : False , 'A' : StoryArena , 'B': ShellStation}
+{'name': 'Highway79', 'speed' : 45, 'length' : 0.50 , 'oneway' : False , 'A' : ShellStation , 'B': FlyingBurger}
+{'name': 'Highway79', 'speed' : 45, 'length' : 0.50 , 'oneway' : False , 'A' : FlyingBurger , 'B': PeoplesBank}
+{'name': 'Highway79', 'speed' : 45, 'length' : 0.25 , 'oneway' : False , 'A' : PeoplesBank , 'B': ChickenExpress}
+{'name': 'Highway79', 'speed' : 45, 'length' : 0.81 , 'oneway' : False , 'A' : ChickenExpress , 'B': Walmart}
+{'name': 'Highway79', 'speed' : 45, 'length' : 0.21 , 'oneway' : False , 'A' : Walmart , 'B': Walgreens}
+{'name': 'EastNorthStreet', 'speed' : 40, 'length' : 0.47 , 'oneway' : False , 'A' : ChickenExpress , 'B': ChamblissAndDavis}
+{'name': 'EastNorthStreet', 'speed' : 40, 'length' : 0.25 , 'oneway' : False , 'A' : ChamblissAndDavis , 'B': EastSideElementry}
+{'name': 'EastNorthStreet', 'speed' : 40, 'length' : 0.58 , 'oneway' : False , 'A' : EastSideElementry , 'B': MagnoliaMiddleSchool}
+{'name': 'EastNorthStreet', 'speed' : 40, 'length' : 0.36 , 'oneway' : False , 'A' : MagnoliaMiddleSchool , 'B': CadenceBank}
+{'name': 'WestNorthStreet', 'speed' : 40, 'length' : 0.25 , 'oneway' : False , 'A' : CadenceBank , 'B': RebootElectronics}
+{'name': 'FredrickCir', 'speed' : 30, 'length' : 0.37 , 'oneway' : False , 'A' : EastSideElementry , 'B': McDonalds}
+{'name': 'NDudney', 'speed' : 35, 'length' : 0.15 , 'oneway' : False , 'A' : MagnoliaMiddleSchool , 'B': EmainNdudney}
+{'name': 'NDudney', 'speed' : 35, 'length' : 0.18 , 'oneway' : False , 'A' : OutOfTheBox , 'B': MagnoliaMiddleSchool}
+{'name': 'NDudney', 'speed' : 35, 'length' : 0.25 , 'oneway' : False , 'A' : InfinityFitness , 'B': OutOfTheBox}
+{'name': 'NDudney', 'speed' : 35, 'length' : 0.70 , 'oneway' : False , 'A' : MagnoliaHigh , 'B': InfinityFitness}
+{'name': 'NDudney', 'speed' : 35, 'length' : 0.70 , 'oneway' : False , 'A' : MagnoliaHigh , 'B': Thatintersectionthatihate}
+{'name': 'EColumbiaStreet', 'speed' : 35, 'length' : 0.60 , 'oneway' : False , 'A' : InfinityFitness , 'B': ChamblissAndDavis}
+{'name': 'EColumbiaStreet', 'speed' : 35, 'length' : 0.35 , 'oneway' : False , 'A' : MedicalCenter , 'B': InfinityFitness}
+{'name': 'EastMainStreet', 'speed' : 35, 'length' : 0.51 , 'oneway' : False , 'A' : Walgreens , 'B': McDonalds}
+{'name': 'EastMainStreet', 'speed' : 35, 'length' : 0.50 , 'oneway' : False , 'A' : McDonalds , 'B': EmainNdudney}
+{'name': 'EastMainStreet', 'speed' : 30, 'length' : 0.30 , 'oneway' : False , 'A' : EmainNdudney , 'B': FirstBaptistChurch}
+{'name': 'EastMainStreet', 'speed' : 30, 'length' : 0.07 , 'oneway' : False , 'A' : FirstBaptistChurch , 'B': Cameo}
+{'name': 'EastMainStreet', 'speed' : 30, 'length' : 0.10 , 'oneway' : False , 'A' : Cameo , 'B': TheSquare}
+{'name': 'WestMainStreet', 'speed' : 30, 'length' : 0.14 , 'oneway' : False , 'A' : TheSquare , 'B': FirstUnitedMethodist}
+{'name': 'NorthJackson', 'speed' : 35, 'length' : 0.15 , 'oneway' : False , 'A' : Cameo , 'B': CadenceBank}
+{'name': 'NorthJackson', 'speed' : 35, 'length' : 0.22 , 'oneway' : False , 'A' : CadenceBank , 'B': SpecializedServices}
+{'name': 'NorthJackson', 'speed' : 35, 'length' : 0.23 , 'oneway' : False , 'A' : SpecializedServices , 'B': MedicalCenter}
+{'name': 'NorthJackson', 'speed' : 35, 'length' : 0.23 , 'oneway' : False , 'A' : MedicalCenter , 'B': DentalCenter}
+{'name': 'NorthJackson', 'speed' : 35, 'length' : 0.27 , 'oneway' : False , 'A' : DentalCenter , 'B': LutheranChurch}
+{'name': 'NorthJackson', 'speed' : 25, 'length' : 0.41 , 'oneway' : False , 'A' : LutheranChurch , 'B': Mulekick}
+{'name': 'GreeneStreet', 'speed' : 30, 'length' : 0.60 , 'oneway' : False , 'A' : MagnoliaHigh , 'B': PeoplesBank}
+{'name': 'GreeneStreet', 'speed' : 35, 'length' : 0.65 , 'oneway' : False , 'A' : LutheranChurch , 'B': MagnoliaHigh}
+{'name': 'SmithStreet', 'speed' : 25, 'length' : 0.35 , 'oneway' : False , 'A' : SpecializedServices , 'B': OutOfTheBox}
+{'name': 'VineStreet', 'speed' : 40, 'length' : 0.14 , 'oneway' : False , 'A' : FirstUnitedMethodist , 'B': RebootElectronics}
+{'name': 'VineStreet', 'speed' : 40, 'length' : 0.50 , 'oneway' : False , 'A' : RebootElectronics , 'B': Firestone}
+{'name': 'VineStreet', 'speed' : 35, 'length' : 0.75 , 'oneway' : False , 'A' : Firestone , 'B': DixieMart}
+{'name': 'VineStreet', 'speed' : 30, 'length' : 0.47 , 'oneway' : False , 'A' : DixieMart , 'B': TravelCenter}
+{'name': 'WStadiumStreet', 'speed' : 25, 'length' : 0.27 , 'oneway' : False , 'A' : Firestone , 'B': PrincePharmacy}
+{'name': 'EStadiumStreet', 'speed' : 25, 'length' : 0.20 , 'oneway' : False , 'A' : PrincePharmacy , 'B': DentalCenter}
+{'name': 'PearceStreet', 'speed' : 30, 'length' : 0.50 , 'oneway' : False , 'A' : MagnoliaHigh , 'B': AsburyMethodist}
+{'name': 'PearceStreet', 'speed' : 30, 'length' : 0.60 , 'oneway' : False , 'A' : AsburyMethodist , 'B': StoryArena}
+{'name': 'NorthWashington', 'speed' : 30, 'length' : 0.70 , 'oneway' : False , 'A' : PrincePharmacy , 'B': Overstreet}
+{'name': 'NorthWashington', 'speed' : 25, 'length' : 0.21 , 'oneway' : False , 'A' : Overstreet , 'B': ReynoldsCenter}
+{'name': 'NorthWashington', 'speed' : 25, 'length' : 0.40 , 'oneway' : False , 'A' : ReynoldsCenter , 'B': UniversityEntrance}
+{'name': 'WestUniversity', 'speed' : 25, 'length' : 0.74 , 'oneway' : False , 'A' : DixieMart , 'B': Overstreet}
+{'name': 'EastUniversity', 'speed' : 25, 'length' : 0.01 , 'oneway' : False , 'A' : Overstreet , 'B': Mulekick}
+{'name': 'EastUniversity', 'speed' : 25, 'length' : 0.70 , 'oneway' : False , 'A' : Mulekick , 'B': AsburyMethodist}
+{'name': 'EastUniversity', 'speed' : 35, 'length' : 0.47 , 'oneway' : False , 'A' : AsburyMethodist , 'B': Thatintersectionthatihate}
+{'name': 'EastUniversity', 'speed' : 35, 'length' : 0.08 , 'oneway' : False , 'A' : Thatintersectionthatihate , 'B': FlyingBurger}
