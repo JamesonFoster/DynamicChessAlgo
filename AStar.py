@@ -217,6 +217,8 @@ class Car: #main interactive object
         print("DONE!")
         print(f'Time to complete: {get_text_time(self.time)}')
     def est(self, currpos, target): # estimates distance to target from current pos
+        if currpos is None or target is None:
+            return float('inf')
         dx = currpos.x - target.x
         dy = currpos.y - target.y
         distance = math.sqrt((dx*dx) + (dy*dy))
@@ -299,7 +301,7 @@ with open("test.txt", "r") as file:
         # Roads
         if readmode == 0:
             if fc == 0:
-                dp1 = int(li)
+                dp1 = float(li)
             elif fc == 1:
                 dp2 = int(li)
             elif fc == 2:
@@ -389,20 +391,24 @@ statx = (xmax + xmin) / 2
 turt.Screen = screen
 screen.setworldcoordinates(xmin - 5,ymin - 5,xmax + 5,ymax + 5)
 screen.tracer(0)
+
 for i in itemp:
     turt.up()
     turt.setposition(i.x,i.y)
     turt.dot(9)
 for i in rtemp:
     turt.width(3)
-    getx1 = i.conn1.x
-    gety1 = i.conn1.y
-    getx2 = i.conn2.x
-    gety2 = i.conn2.y
+    if i.conn1 != None:
+        getx1 = i.conn1.x
+        gety1 = i.conn1.y
+    if i.conn2 != None:
+        getx2 = i.conn2.x
+        gety2 = i.conn2.y
     turt.setposition(getx1,gety1)
     turt.down()
     turt.setposition(getx2,gety2)
     turt.up()
+
 screen.update()
 runtime = time.time()
 print(f"Time: {runtime - starttime:.6f} seconds\n")
