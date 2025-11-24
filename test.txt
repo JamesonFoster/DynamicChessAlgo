@@ -316,6 +316,7 @@ MagnoliaHigh
 NDudney_4
 NDudney_5
 GreeneStreet_1
+GreeneStreet_2
 PearceStreet_1
 --stop--
 PeoplesBank
@@ -332,6 +333,7 @@ CadenceBank
 EastNorthStreet_4
 WestNorthStreet_5
 NorthJackson_1
+NorthJackson_2
 --stop--
 MedicalCenter
 352
@@ -339,6 +341,7 @@ MedicalCenter
 3
 EColumbiaStreet_2
 NorthJackson_3
+NorthJackson_4
 --stop--
 LutheranChurch
 418
@@ -376,6 +379,7 @@ DentalCenter
 430
 0
 NorthJackson_4
+NorthJackson_5
 EStadiumStreet
 --stop--
 Firestone
@@ -399,6 +403,7 @@ Overstreet
 732
 0
 NorthWashington_2
+NorthWashington_1
 WestUniversity
 EastUniversity_1
 --stop--
@@ -415,6 +420,7 @@ AsburyMethodist
 748
 2
 PearceStreet_1
+PearceStreet_2
 EastUniversity_2
 EastUniversity_3
 --stop--
@@ -423,6 +429,7 @@ FlyingBurger
 739
 0
 Highway79_1
+Highway79_2
 EastUniversity_4
 --stop--
 Thatintersectionthatihate
@@ -430,6 +437,7 @@ Thatintersectionthatihate
 743
 0
 NDudney_5
+EastUniversity_3
 EastUniversity_4
 --stop--
 ShellStation
@@ -467,6 +475,7 @@ DixieMart
 769
 0
 VineStreet_4
+VineStreet_3
 WestUniversity
 --stop--
 TravelCenter
@@ -476,5 +485,5 @@ TravelCenter
 Highway82_1
 VineStreet_4
 ----Cars----
-PrincePharmacy
+DixieMart
 UniversityEntrance
