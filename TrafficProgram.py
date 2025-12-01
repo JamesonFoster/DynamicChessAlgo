@@ -2,6 +2,11 @@ import math
 import time
 import random as ran
 import turtle as turt
+import os
+
+
+path = str(os.getcwd())
+
 
 class IntSect: #different name for vertex
     intersections = []  
@@ -47,8 +52,9 @@ class IntSect: #different name for vertex
         return cls.intersections
     def __repr__(self):
         return f"Intersection({self.name})"
-#************************************************Roundabout**********************************************
 
+
+#************************************************Roundabout**********************************************
 class RoundAbt(IntSect): #remove AStar. once combined
     def __init__(self, name, x, y):
         super().__init__(name, x, y)
@@ -116,6 +122,10 @@ class StopFour(IntSect):
         self.connections = []
         self.queues = {}
         self.is_stop_sign_controlled = True
+        self.ghosts = 2
+        self.lastUse = time.time()
+        self.deltaTuse = 0
+
     def traffic_control(self):
         #Overrides the parent method to specify the type of control.
         return
@@ -134,8 +144,7 @@ class StopFour(IntSect):
             # Calculate the index of the car to the right
             right_index = (current_index + 1) % len(self.POSITION_ORDER)
             car_to_right = self.POSITION_ORDER[right_index]
-            # If the car to the right is NOT among the simultaneous cars,
-            # then the current_car has the right-of-way.
+            # If the car to the right is NOT among the simultaneous cars, then the current_car has the right-of-way.
             if car_to_right not in simultaneous_cars:
                 goes_first = current_car
                 break # Dis da boi
@@ -148,7 +157,32 @@ class StopFour(IntSect):
         else:
             # Should only happen if there's a problem with the logic, but included as a guard. Hopefully :)
             return "Could not determine the order based on the 'car to the right' rule.", simultaneous_cars
-        
+    def spawnGhosts(self, new):
+        m = new - self.lastUse
+        if m < self.deltaTuse:
+            ghosts = self.ghosts + self.ghosts* math.ceil(new - self.lastUse) 
+        #percentage of ghosts based on time since last use
+        else:
+            ghosts = self.ghosts - self.ghosts* math.ceil(new - self.lastUse) 
+        return ghosts + 1
+    def getTime(self, car):
+        newUse = time.time()
+        #print(len(self.connections))
+        self.ghosts = self.spawnGhosts(newUse)
+        #update time difference since last use
+        self.deltaTuse = newUse - self.lastUse
+        #update time of last use
+        self.lastUse = newUse
+        temp = car.path[car.path.index(self)] 
+        if temp == car.path[-1]: # If temp is equal to last node in path
+            Cdest = temp # The car destination is the current node
+        else:
+            Cdest = car.path[car.path.index(self) + 1] # The car destination is the next node
+        for _ in range(self.ghosts):
+            Gdest = ran.randint(0,len(self.connections)-1) # Each ghost car gets a random destination road
+            if self.connections[Gdest].getOther(self) == Cdest: # If the ghost car's destination is same as car's at this node
+                self.time += ((5/60)/60) # Add 5 seconds for stop
+        return self.time
 # Traffic light class
 class traffic_light(IntSect):
     def __init__(self, name, x=0, y=0):
@@ -202,7 +236,7 @@ class Road: #different name for edge
             else:
                 print(f'Debug: {selected_car.name} tried to go down a oneway (Road: {heading.name})!')  # ADD ERROR HANDLING HERE!!
 class Car: #main interactive object
-    cars = set()
+    cars =set()
     def __init__(self, startpos):
         self.pos = startpos
         self.location = startpos
@@ -220,6 +254,8 @@ class Car: #main interactive object
         print("DONE!")
         print(f'Time to complete: {get_text_time(self.time)}')
     def est(self, currpos, target): # estimates distance to target from current pos
+        if currpos is None or target is None:
+            return float('inf')
         dx = currpos.x - target.x
         dy = currpos.y - target.y
         distance = math.sqrt((dx*dx) + (dy*dy))
@@ -288,7 +324,7 @@ ymax = 0
 ymin = 0
 rtemp = []
 itemp = []
-with open("test.txt", "r") as file:
+with open(path + "\\test.txt", "r") as file:
     for line in file:
         li = line.strip()
         if li == "----Intersect----":
@@ -302,9 +338,9 @@ with open("test.txt", "r") as file:
         # Roads
         if readmode == 0:
             if fc == 0:
-                dp1 = int(li)
+                dp1 = float(li)
             elif fc == 1:
-                dp2 = int(li)
+                dp2 = float(li)
             elif fc == 2:
                 dp3 = li
             elif fc == 3:
@@ -320,13 +356,13 @@ with open("test.txt", "r") as file:
                 fc = 0
                 continue
             if fc == 0:
-                dp1 = li
+                dp1 = li #name
             elif fc == 1:
-                dp2 = int(li)
+                dp2 = float(li) #x point
             elif fc == 2:
-                dp3 = int(li)
+                dp3 = float(li) # y point
             elif fc == 3:
-                dp4 = int(li)
+                dp4 = int(li) # type
                 if dp4 == 2:
                     newint = StopFour(dp1,dp2,dp3)
                 elif dp4 == 1:
@@ -381,6 +417,8 @@ with open("test.txt", "r") as file:
                     print("ERROR NO CONNECTION")
             fc = (fc + 1) % 2
 
+
+'''
 #Visual Stuff (Turtle Edition)
 turt.speed(999999)
 turt.hideturtle()
@@ -392,21 +430,25 @@ statx = (xmax + xmin) / 2
 turt.Screen = screen
 screen.setworldcoordinates(xmin - 5,ymin - 5,xmax + 5,ymax + 5)
 screen.tracer(0)
+
 for i in itemp:
     turt.up()
     turt.setposition(i.x,i.y)
     turt.dot(9)
 for i in rtemp:
     turt.width(3)
-    getx1 = i.conn1.x
-    gety1 = i.conn1.y
-    getx2 = i.conn2.x
-    gety2 = i.conn2.y
+    if i.conn1 != None:
+        getx1 = i.conn1.x
+        gety1 = i.conn1.y
+    if i.conn2 != None:
+        getx2 = i.conn2.x
+        gety2 = i.conn2.y
     turt.setposition(getx1,gety1)
     turt.down()
     turt.setposition(getx2,gety2)
     turt.up()
+
 screen.update()
 runtime = time.time()
 print(f"Time: {runtime - starttime:.6f} seconds\n")
-stoper = input("Press Enter when Finished: ")
+stoper = input("Press Enter when Finished: ")'''

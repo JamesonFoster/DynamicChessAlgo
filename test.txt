@@ -485,5 +485,5 @@ TravelCenter
 Highway82_1
 VineStreet_4
 ----Cars----
-DixieMart
-UniversityEntrance
+Walgreens
+LutheranChurch
