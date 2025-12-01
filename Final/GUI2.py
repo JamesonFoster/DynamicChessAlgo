@@ -11,21 +11,27 @@ CAR_IMAGES = [ 'redcar.png',
            'browncar.png',
              'bluecar.png']
 
+
+# This function takes three points from the file and three cooresponding points from OpenStreetMaps
+# and calibrates x and y scale factors
 def calibrate_coordinates(cx1, cy1, cx2, cy2, cx3, cy3, dx1, dy1, dx2, dy2, dx3, dy3):
         
     y_scale =  math.sqrt(((dx2-dx1)**2) + ((dy2 - dy1)**2)) / math.sqrt(((cx2-cx1)**2) + ((cy2 - cy1)**2)) 
     x_scale =  math.sqrt(((dx3 - dx2)**2) + ((dy3 - dy2)**2)) / math.sqrt(((cx3 - cx2)**2) + ((cy3 - cy2)**2))
 
-    return x_scale, y_scale
+    return x_scale, y_scale #return the scaling factor
 
+# Traslates the coordinates from the file to OpenStreetMaps coordinates
 def calculate_points(x, y, xs, ys):
-    x = -93.25078388 + (x * xs) 
-    y =  33.2647510 + (y * ys) 
+    x = -93.25078388 + (x * xs) #the smallest horizontal coordinate plus the scaled x coordinate
+    y =  33.2647510 + (y * ys) #the smallest vertical coordinate plus the scaled y coordinate
     
-    return y, x
+    return y, x #return the altered x and y
 
+# calibrate the x and y scale factors
 xs, ys = calibrate_coordinates(0, 0, 0, 1000, 1000, 1000, -93.2507388, 33.2647510, -93.2507388,33.2979728, -93.2130162, 33.2979728)
 
+# the list that holds the altered coordiantes in the traffic programs' outputted path
 coordinates = []
 
 #========================HIGHLIGHT ROAD FUNCTION=======================#
@@ -33,17 +39,22 @@ def highlight_road(car, map_widget):
     #If text file is X=Lat, Y=Lon, use (node.x, node.y).
     position_list = [(node.x, node.y) for node in car.path]
     
-    #Add current position
+    # Add current position
     position_list.insert(0, (car.pos.x, car.pos.y))
+
+    # update all path coordinate points
     for coord in position_list:
         x = calculate_points(coord[0], coord[1], xs, ys)
-        coordinates.append(x)
+        coordinates.append(x) 
+
+    #make the car's path highlighted on the map
     map_widget.set_path(coordinates, color="#00F2FF", width=4)
 
     #Add end text marker
     if len(car.path) > 0:
         map_widget.set_marker(coordinates[-1][0], coordinates[-1][1], text="Destination")
 #========================GET ANGLE FUNCTION============================#
+#finds the angle the car is going
 def get_angle(x1, y1, x2, y2):
     dx = y2 - y1
     dy = x2 - x1
@@ -55,7 +66,9 @@ def rotate_image(image, angle):
     # Formula: angle - 90 add or subtract 180 based on image look. IF NEEDED
     rotation_needed = angle - 90
     return image.rotate(rotation_needed, expand=True)
+
 #==========================ANIMATION FUNCTION==========================#
+#display the car moving from point a to b
 def animate_marker_along_path():
     global current_point_index, car_base_img, marker, car_to_animate
 
@@ -97,6 +110,7 @@ def animate_marker_along_path():
     except Exception as e:
         print(f"Error during animation: {e}")
 #==============================GUI SETUP===============================================================#
+#set up the screen using tkinter
 def GUI_setup():
     root = tk.Tk()
     root.title("Magnolia Map View")
@@ -104,7 +118,10 @@ def GUI_setup():
     map_widget = tkm.TkinterMapView(root, width=810, height=1080, corner_radius=0)
     map_widget.pack(fill="both", expand=True)
 
+    #set position to city the program is running on
+    # CHANGE IF NEEDED
     map_widget.set_position(33.2900999, -93.2369201)
+
     map_widget.set_zoom(14)
     return root, map_widget
 
@@ -113,18 +130,7 @@ def GUI_setup():
 root, map_widget = GUI_setup()
 
 
-
-def changeType():
-    print("yes")
-
-
 root.title('Search Star')
-
-
-
-for i in TP.itemp:
-    button = tk.Button(root, text=i.name, width=25, command=changeType)
-    button.pack()
 
 
 
@@ -175,7 +181,7 @@ if TP.Car.cars:
             tk_img = ImageTk.PhotoImage(rot_pil)
 
             marker = map_widget.set_marker(start_node[0], start_node[1], icon=tk_img)
-            #marker.image = tk_img  # Keep reference
+            
         else:
             # Fallback if image fails
             marker = map_widget.set_marker(start_node[0], start_node[1])
@@ -190,10 +196,11 @@ else:
     print("No cars in simulation.")
 
 
-
+#set bounds of the map screen
 top_left_bound = (33.3017057, -93.2609527)
 bottom_right_bound = (33.2595144, -93.2098834)
 map_widget.fit_bounding_box(top_left_bound, bottom_right_bound)
+#call the animation function after 1000
 root.after(1000, animate_marker_along_path)
 
 
